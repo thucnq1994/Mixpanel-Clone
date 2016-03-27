@@ -1,0 +1,22 @@
+doctype
+html( lang="en" )
+	include ./template/head.jade
+	body
+		.container
+			include ./template/menu.jade
+			.jumbotron
+				h1 Hi!
+				p This is a simple application which allow publishers tracking what users did in your application.
+				p.text-center: a.btn.btn-primary.btn-lg( href="/login" ) Getting started
+				
+ 
+		include ./template/foot.jade
+		script(type="text/javascript").
+			$(document).ready(function() {
+				var access_token = localStorage.getItem("token");
+				console.log(access_token);
+				$.get('/api/publisher', {access_token : access_token}).done(function( data ){
+					console.log(data);
+					//56f44a962f1c4a822a973626
+				});
+			});	

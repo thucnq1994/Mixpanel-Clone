@@ -1,0 +1,26 @@
+doctype
+html( lang="en" )
+	head
+		title Mixpanel Demo Page
+		meta( charset='utf-8' )
+		meta( http-equiv='X-UA-Compatible', content='IE=edge' )
+		meta( name='viewport', content='width=device-width, initial-scale=1.0' )
+		meta( name='description', content='Mixpanel clone' )
+		//- Bootswatch Theme
+		link(href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.0/flatly/bootstrap.min.css", rel="stylesheet")
+		link(href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet")
+		link(rel='stylesheet', href='/css/style.css')
+		script( src='js/tracking.js' )
+	body
+		.container
+			include ./template/menu.jade
+			.jumbotron
+				h1 Hello!
+				p When you click in the button below, we will send a tracking data to server.
+				p.text-center: a.btn.btn-primary.btn-lg( href="javascript:void(0)" onclick="MixpanelCloneTrack.track('Video played', {'Video length': 213,'id': 'hY7gQr0'}, function(){console.log('done');});" ) Click me!!!
+				
+ 
+		include ./template/foot.jade
+		script( src="/socket.io/socket.io.js" )
+		script(type="text/javascript").
+			var socket = io.connect();

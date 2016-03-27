@@ -1,0 +1,16 @@
+
+div.row(style='margin-top:50px')
+	div.col-md-12.col-sm-12
+		p.text-center
+			a(href="/demo" target="_blank") Demo
+		p.text-center Mixpanel Clone &copy; 2016
+
+script( src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js' )
+script( src='//code.jquery.com/ui/1.11.4/jquery-ui.js' )
+script( src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js' )
+script( src="http://momentjs.com/downloads/moment.min.js" )
+script(type="text/javascript").
+	$(document).ready(function() {
+		$('#message').delay(5000).fadeOut('slow');
+		$('[data-toggle="tooltip"]').tooltip();
+	});	

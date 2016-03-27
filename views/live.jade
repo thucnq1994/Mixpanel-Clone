@@ -1,0 +1,192 @@
+doctype
+html( lang="en" )
+    include ./template/head.jade
+    body
+        .container
+            include ./template/menu.jade
+            if data && data.cur_project
+                button(class="btn btn-info pull-right" style="margin-top:22px" data-toggle="modal" data-target="#edit-form" data-placement="left" title="Upgrade project settings")
+                    i(class="fa fa-cog")
+                button(class="btn btn-danger pull-right" style="margin-top:22px;margin-right:10px" data-toggle="modal" data-target="#confirm-delete" data-placement="left" title="Delete project")
+                    i(class="fa fa-trash")
+            div.page-header
+                h2 Live view
+            div.row
+                table.table.table-hover.table-bordered
+                    thead
+                        th(class="col-md-1")|&nbsp;
+                        th(class="col-md-3")|Event
+                        th|Time
+                    tbody
+                        if livedata && livedata.length > 0
+                            - each data in livedata
+                                tr(class="clickable" data-toggle="collapse" id="#{data._id}" data-target=".#{data._id}collapsed")
+                                    td(class="text-center")
+                                        i(class="glyphicon glyphicon-user")
+                                    td #{data.event}
+                                    td #{moment(data.date).startOf('minute').fromNow()} ( #{moment(data.date).format("YYYY-MM-DD HH:mm:ss")} )
+                                tr(class="collapse out budgets #{data._id}collapsed" style="background-color:#ecf0f1;")
+                                    td|&nbsp;
+                                    td(colspan="2")
+                                        div
+                                            ul(class="nav nav-tabs")
+                                                //
+                                                    li(class="active")
+                                                        a(data-toggle="tab" href="#allProp#{data._id}" style="text-decoration:none")|ALL PROPERTIES
+                                                li(class="active")
+                                                    a(data-toggle="tab" href="#yourProp#{data._id}" style="text-decoration:none")|YOUR PROPERTIES
+                                                li
+                                                    a(data-toggle="tab" href="#mixpanelProp#{data._id}" style="text-decoration:none")|MIXPANEL PROPERTIES
+
+                                            div(class="tab-content")
+                                                //
+                                                    div(id="allProp#{data._id}" class="tab-pane fade in active")
+                                                        table.table.table-bordered(style="background-color:transparent")
+                                                            tbody
+                                                                tr
+                                                                    td(colspan="3" class="text-center") There are no properties associated with this event.
+                                                                //
+                                                                    tr
+                                                                        td(class="col-md-4") Browser: 
+                                                                            b|Chrome
+                                                                        td(class="col-md-4") Distinct ID: 
+                                                                            b|849
+                                                                        td(class="col-md-4") Operating System: 
+                                                                            b|Windows
+                                                                    tr
+                                                                        td(class="col-md-4") Browser Version: 
+                                                                            b|46.2
+                                                                        td(class="col-md-4") Initial Referrer: 
+                                                                            b|http://example.com/
+                                                                        td(class="col-md-4") Region: 
+                                                                            b|Thanh Pho Ha Noi
+                                                                    tr
+                                                                        td(class="col-md-4") City: 
+                                                                            b|Hanoi
+                                                                        td(class="col-md-4") Initial Referring Domain: 
+                                                                            b|example.com
+                                                                        td(class="col-md-4") Screen Height: 
+                                                                            b|768
+                                                                    tr
+                                                                        td(class="col-md-4") Country: 
+                                                                            b|Vietnam
+                                                                        td(class="col-md-4") Library Version: 
+                                                                            b|2.7.7
+                                                                        td(class="col-md-4") Screen Width: 
+                                                                            b|1366
+                                                                    tr
+                                                                        td(class="col-md-4") Current URL: 
+                                                                            b|http://example.com/
+                                                                        td(class="col-md-4") Mixpanel Library: 
+                                                                            b|web
+                                                                        td(class="col-md-4") Time: 
+                                                                            b|#{moment(data.date).startOf('day').fromNow()}
+                                                div(id="yourProp#{data._id}" class="tab-pane fade in active")
+                                                    table.table.table-bordered(style="background-color:transparent")
+                                                        tbody
+                                                            if data.data
+                                                                - var json_data = JSON.parse(JSON.parse(data.data));
+                                                                - var i = 0;
+                                                                - for(var k in json_data)
+                                                                    - var value = json_data[k];
+                                                                        tr
+                                                                            td(class="col-md-4" id="#{i}") #{k} :
+                                                                                b #{value}
+                                                            else
+                                                                td(colspan="3" class="text-center") There are no custom properties associated with this event.
+                                                div(id="mixpanelProp#{data._id}" class="tab-pane fade")
+                                                    table.table.table-bordered(style="background-color:transparent")
+                                                        tbody
+                                                            tr
+                                                                td(colspan="3" class="text-center") There are no properties associated with this event.
+                                                            //
+                                                                tr
+                                                                    td(class="col-md-4") Browser: 
+                                                                        b|Chrome
+                                                                    td(class="col-md-4") Distinct ID: 
+                                                                        b|849
+                                                                    td(class="col-md-4") Operating System: 
+                                                                        b|Windows
+                                                                tr
+                                                                    td(class="col-md-4") Browser Version: 
+                                                                        b|46.2
+                                                                    td(class="col-md-4") Initial Referrer: 
+                                                                        b|http://example.com/
+                                                                    td(class="col-md-4") Region: 
+                                                                        b|Thanh Pho Ha Noi
+                                                                tr
+                                                                    td(class="col-md-4") City: 
+                                                                        b|Hanoi
+                                                                    td(class="col-md-4") Initial Referring Domain: 
+                                                                        b|example.com
+                                                                    td(class="col-md-4") Screen Height: 
+                                                                        b|768
+                                                                tr
+                                                                    td(class="col-md-4") Country: 
+                                                                        b|Vietnam
+                                                                    td(class="col-md-4") Library Version: 
+                                                                        b|2.7.7
+                                                                    td(class="col-md-4") Screen Width: 
+                                                                        b|1366
+                                                                tr
+                                                                    td(class="col-md-4") Current URL: 
+                                                                        b|http://example.com/
+                                                                    td(class="col-md-4") Mixpanel Library: 
+                                                                        b|web
+                                                                    td(class="col-md-4") Time: 
+                                                                        b|#{moment(data.date).startOf('day').fromNow()}
+                        else
+                            tr
+                                td(colspan="3" class="text-center") Empty
+        if data && data.cur_project
+            div(style="display: none;" class="modal fade" id="edit-form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+                div(class="modal-dialog")
+                    div(class="modal-content")
+                        form(role="form" action="/update-project" method="post")
+                            div(class="modal-header")
+                                button(type="button" class="close" data-dismiss="modal")
+                                    span(aria-hidden="true") &times;
+                                    span(class="sr-only") Close
+                                h4(class="modal-title" id="myModalLabel") Project Settings
+                            div(class="modal-body")
+                                div(class="form-group")
+                                    label(for="project_name") Name
+                                    input(type="text" name="name" class="form-control" id="project_name" value="#{data.cur_project && data.cur_project.name ? data.cur_project.name : ''}" placeholder="Project's name")
+                                div(class="form-group")
+                                    label(for="project_url") URL
+                                    input(type="text" name="url" class="form-control" id="project_url" value="#{data.cur_project && data.cur_project.url ? data.cur_project.url : ''}" placeholder="Project's URL")
+                            div(class="modal-footer")
+                                button(type="button" class="btn btn-default" data-dismiss="modal") Cancel
+                                button(type="submit" class="btn btn-info btn-ok") Save
+
+            div(style="display: none;" class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+                div(class="modal-dialog")
+                    div(class="modal-content")
+                        form(role="form" action="/update-project" method="post")
+                            div(class="modal-header")
+                                button(type="button" class="close" data-dismiss="modal")
+                                    span(aria-hidden="true") &times;
+                                    span(class="sr-only") Close
+                                h4(class="modal-title" id="myModalLabel") Delete project
+                            div(class="modal-body")
+                                p  Are you sure you want to delete this project? 
+                            div(class="modal-footer")
+                                button(type="button" class="btn btn-default" data-dismiss="modal") Cancel
+                                a(href="/delete-project/#{data.cur_project._id}" class="btn btn-danger btn-ok") Delete
+                        
+        -function prettyDate(dateString){
+            //if it's already a date object and not a string you don't need this line:
+            -var date = new Date(dateString);
+            -var d = date.getDate();
+            -var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+            -var m = monthNames[date.getMonth()];
+            -var M = date.getMonth();
+            -var y = date.getFullYear();
+            -return d+' '+M+' '+y;
+        -}
+        
+        include ./template/foot.jade
+        script(type="text/javascript").
+            socket.on('track', function(){
+                $('#message-wrapper').append($('<div id="message" class="alert alert-dismissable alert-info">').html('<button class="close" data-dismiss="alert" type="button">×</button> You have new data, please reload to see!'));
+            });

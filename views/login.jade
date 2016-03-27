@@ -1,0 +1,32 @@
+doctype
+html( lang="en" )
+	include ./template/head.jade
+	body
+		.container
+			include ./template/menu.jade
+			div.row
+				div(class="col-md-offset-5 col-md-3")
+					div(class="form-login")
+					h4|Welcome back.
+					form(role="form")
+						input(type="text" id="username" name="username" value="hoalong" class="form-control input-sm chat-input" placeholder="username")
+						br
+						input(type="password" id="password" name="password" value="123456" class="form-control input-sm chat-input" placeholder="password")
+						br
+						div(class="wrapper")
+						span(class="group-btn")
+							a(id="btnLogin" href="javascript:void(0)" class="btn btn-primary btn-md btn-block") Login 
+								i(class="fa fa-sign-in")
+ 
+		include ./template/foot.jade
+		script(type="text/javascript").
+			$(document).ready(function() {
+				$('#btnLogin').click(function(){
+					$.post('/login', {username : $('#username').val(), password : $('#password').val() }).done(function( data ) {
+						if( !data.error ) {
+							localStorage.setItem("token", data.token);
+						}
+						window.location.replace("/");
+					});
+				});
+			});	

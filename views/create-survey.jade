@@ -1,0 +1,365 @@
+doctype
+html( lang="en" )
+	include ./template/head.jade
+	style.
+		#btnAddQuestion, #addMoreChoice {
+			cursor:pointer;
+		}
+	body
+		.container
+			include ./template/menu.jade
+			div.row
+				div(class="col-md-9")
+					div.row
+						div(class="col-md-8")
+							div(class="panel panel-default")
+								div(class="panel-body")
+									button(id="leftArrow" class="btn btn-default pull-left")
+										i(class="fa fa-arrow-left")
+									button(id="rightArrow" class="btn btn-default pull-right")
+										i(class="fa fa-arrow-right")
+									h4(class="text-center")
+										span#current-number 1
+										| &nbsp;of&nbsp;
+										span#total-number 1
+									div(class="text-center" style="margin-top:25px" id="questionContainer")
+										input(type="type" class="form-control input-sm chat-input" name="question" id="question" style="display:none;")
+										div(id="btnAddQuestion")
+											span(id="question_label" data-toggle="tooltip" data-placement="top" title="Edit")
+											div(id="question_sign")
+												span(class="fa-stack fa-lg")
+													i(class="fa fa-square-o fa-stack-2x")
+													i(class="fa fa-plus fa-stack-1x")
+												| Add a question?
+									div(class="panel panel-default" style="margin-top:15px")#questionType
+										ul(class="list-group")#choiceContainer
+											li(class="list-group-item")#addMoreChoice
+												span(class="fa-stack fa-lg")
+													i(class="fa fa-square-o fa-stack-2x")
+													i(class="fa fa-plus fa-stack-1x")
+												| &nbsp;Add choice
+										div(style="display:none")#text-field
+											textarea(row="5" class="form-control" disabled) Answer goes here...
+
+						div(class="col-md-4")
+							div.row
+								div(class="col-md-12")
+									div(class="panel panel-default")
+										div(class="panel-heading") Question Type
+										div(class="panel-body")
+											div(class="radio")
+												label
+													input(type="radio" name="questTypeRadio" checked="checked" value="1")
+													i(class="fa fa-list")
+													| &nbsp;Multiple Choice
+											div(class="radio")
+												label
+													input(type="radio" name="questTypeRadio" value="2")
+													i(class="fa fa-text-height")
+													| &nbsp;Text Field
+							div.row
+								div(class="col-md-12")
+									div(class="panel panel-default")
+										div(class="panel-heading") Actions
+										div(class="panel-body")
+											button(class="btn btn-block btn-danger" id="deleteThisQuestion")
+												i(class="fa fa-trash") &nbsp;Delete this question
+											button(class="btn btn-block btn-success" id="addAnotherQuestion")
+												i(class="fa fa-plus") &nbsp;Add another question
+				div(class="col-md-3")
+					div(class="form-login")
+					h4|Create Survey
+					form(action="" method="post")
+						input(type="text" id="name" name="name" class="form-control input-sm chat-input" placeholder="Project's name")
+						br
+						div(class="wrapper")
+						span(class="group-btn")
+							a(href="/survey" class="btn btn-default btn-md" style="width:45%;margin-right:10px")
+								i(class="fa fa-close")
+								| &nbsp;Close
+							button(id="btnCreate" type="submit" class="btn btn-info btn-md" style="width:45%") Create &nbsp;
+								i(class="fa fa-arrow-right")
+		
+		div(style="display: none;" class="modal fade" id="error_message" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true")
+				div(class="modal-dialog")
+					div(class="modal-content")
+						div(class="modal-header")
+							button(type="button" class="close" data-dismiss="modal")
+								span(aria-hidden="true") &times;
+								span(class="sr-only") Close
+							h4(class="modal-title" id="myModalLabel") We're missing some information
+						div(class="modal-body")#error-message
+							p  Your questions should not be blank.
+						div(class="modal-footer")
+							a(href="javascript:void(0)" class="btn btn-info" data-dismiss="modal") OK
+
+		include ./template/foot.jade
+		script(type="text/javascript").
+			$(document).ready(function() {
+				$( "#choiceContainer" ).sortable();
+				$( "#choiceContainer" ).disableSelection();
+
+				localStorage.removeItem("questionList");
+				var current_number = 1;
+				var question_number = 1;
+				$("input[name=questTypeRadio]:radio").change(function () {
+					var questionType = $(this).val();
+					if( questionType == 1 ){
+						$('#choiceContainer').show();
+						$('#text-field').hide();
+					} else if( questionType == 2 ){
+						$('#choiceContainer').hide();
+						$('#text-field').show();
+					}
+				});
+
+				$('#btnAddQuestion').click(function(){
+					$('#btnAddQuestion').hide();
+					$('#question').show().focus();
+				});
+
+				$('#addMoreChoice').click(function(){
+					$('<li class="list-group-item"><span class="fa-stack fa-lg"><i class="fa fa-stack-2x"></i><i class="fa fa-bars fa-stack-1x"></i></span><input style="display:inline;width:90%" class="form-control input-sm" type="text"></li>').insertBefore('#addMoreChoice');
+				});
+
+				$('#question').focusout(function() {
+					$(this).hide();
+					if ($('#question').val().length > 0 ) {
+						$('#question_label').text($('#question').val());
+						$('#question_sign').hide();
+					}
+					$('#btnAddQuestion').show();
+				});
+
+				$('#deleteThisQuestion').click(function(){
+					deleteQuestion(current_number);
+				});
+
+				$('#addAnotherQuestion').click(function(){
+					saveQuestions();
+					question_number++;
+					current_number++;
+					$('#current-number').text(question_number);
+					$('#total-number').text(question_number);
+					$('input[name="questTypeRadio"][value="1"]').prop("checked", true); 
+					$('input[name="questTypeRadio"][value="2"]').prop("checked", false); 
+					clearAll();
+				});
+
+				function clearAll(){
+					$('#choiceContainer').show();
+					$('#text-field').hide();
+					$('#question').val('');
+					$('#question_label').text('');
+					$('#question_sign').show();
+					$('#choiceContainer li').each(function(){
+						var id = $(this).attr("id");
+						if (id != 'addMoreChoice') {
+							$(this).remove();
+						}
+					});
+				}
+
+				function saveQuestions(){
+					if(typeof(Storage) !== "undefined") {
+						var data = {};
+						data.id = current_number;
+						data.question = $('#question').val() || '';
+						data.answer = {};
+
+						var questionType = $('input[name="questTypeRadio"]:checked').val();
+						if( questionType == 1 ) {
+							data.type = 'multiple-choice';
+							var i = 1;
+							$('#choiceContainer input').each(function(){
+								var $this = $(this);
+								var inputVal = $this.val();
+								if ($(this).val().length == 0) {
+									$(this).parent().remove();
+								} else {
+									data.answer[i] = inputVal;
+								}
+								i++;
+							});
+						} else {
+							data.type = 'text-field';
+						}
+						data.answer = JSON.stringify(data.answer);
+
+						var cur_questions = localStorage.getItem("questionList");
+						cur_questions = JSON.parse(cur_questions);
+						if( cur_questions === null ) {
+							cur_questions = {};
+						}
+						cur_questions[current_number] = data;
+						localStorage.setItem("questionList", JSON.stringify(cur_questions));
+					} else {
+						alert("Try to upgrade your browser version! It's too old");
+					}
+				}
+
+				$('#leftArrow').click(function(){
+					if( current_number > 1 ) {
+						saveQuestions();
+						current_number--;
+						$('#current-number').text(current_number);
+						clearAll();
+						getQuestionByID(current_number);
+					}
+				});
+
+				$('#rightArrow').click(function(){
+					if( current_number < question_number ) {
+						saveQuestions();
+						current_number++;
+						$('#current-number').text(current_number);
+						clearAll();
+						getQuestionByID(current_number);
+					}
+				});
+
+				function getQuestionByID(id = 0){
+					var cur_questions = localStorage.getItem("questionList");
+					cur_questions = JSON.parse(cur_questions);
+					if( cur_questions === null ) {
+						cur_questions = {};
+					}
+
+					if( cur_questions[id].question.length > 0) {
+						$('#question').val(cur_questions[id].question);
+						$('#question_label').text(cur_questions[id].question);
+						$('#question_sign').hide();
+					}
+					
+					if( cur_questions[id].type === 'multiple-choice' ){
+						$('#choiceContainer').show();
+						$('#text-field').hide();
+						$('input[name="questTypeRadio"][value="1"]').prop("checked", true); 
+						$('input[name="questTypeRadio"][value="2"]').prop("checked", false); 
+						
+						var answer = JSON.parse(cur_questions[id].answer);
+						var arrayLength = countObj(answer);
+						for (var i = 1; i <= arrayLength; i++) {
+							$('<li class="list-group-item"><span class="fa-stack fa-lg"><i class="fa fa-stack-2x"></i><i class="fa fa-bars fa-stack-1x"></i></span><input style="display:inline;width:90%" class="form-control input-sm" type="text" value="'+answer[i]+'"></li>').insertBefore('#addMoreChoice');
+						}
+					} else {
+						$('#choiceContainer').hide();
+						$('#text-field').show();
+						$('input[name="questTypeRadio"][value="1"]').prop("checked", false); 
+						$('input[name="questTypeRadio"][value="2"]').prop("checked", true); 
+					}
+					
+				}
+
+				function deleteQuestion(id = 0){ 
+					var cur_questions = localStorage.getItem("questionList");
+					cur_questions = JSON.parse(cur_questions);
+					if( cur_questions === null ) {
+						cur_questions = {};
+					}
+					delete cur_questions[id];
+					var i = 1;
+					for (var key in cur_questions) {
+						if (cur_questions.hasOwnProperty(key)) {
+							if( key != i ){
+								cur_questions[i] = cur_questions[key];
+								delete cur_questions[key];
+							}
+							i++;
+						}
+					}
+
+					localStorage.setItem("questionList", JSON.stringify(cur_questions));
+
+					clearAll();
+					if( current_number == question_number && current_number > 1 ) {
+						current_number--;
+					}
+					if( question_number > 1 ) {
+						getQuestionByID(current_number);
+						question_number--;
+					}
+					
+					$('#current-number').text(current_number);
+					$('#total-number').text(question_number);
+					$('input[name="questTypeRadio"][value="1"]').prop("checked", true); 
+					$('input[name="questTypeRadio"][value="2"]').prop("checked", false);
+				}
+
+				$('#btnCreate').click(function(e){
+					saveQuestions();
+
+					var cur_questions = localStorage.getItem("questionList");
+					cur_questions = JSON.parse(cur_questions);
+					if( cur_questions === null ) {
+						cur_questions = {};
+					}
+
+					var flag = 0;
+					var message = '';
+
+					if( $('#name').val().length == 0 ){
+						flag = 1;
+						message = 'Your survey name cannot be blank';
+					} else {
+
+						for (var key in cur_questions) {
+							if (cur_questions.hasOwnProperty(key)) {
+								if( cur_questions[key].question.length == 0 ) {
+									flag = 1;
+									message = 'Your questions should not be blank.';
+									break;
+								}
+
+								var answer = JSON.parse(cur_questions[key].answer);
+								if( cur_questions[key].type === 'multiple-choice' && countObj(answer) < 2 ){
+									flag = 1;
+									message = 'Your multiple choice question should have more than one option.';
+									break;
+								}
+
+								if( cur_questions[key].type === 'multiple-choice' ) {
+									var unique_values = {};
+									for (var k in cur_questions) {
+										if ( answer.hasOwnProperty(k) ) {
+											if ( ! unique_values[answer[k]] ) {
+												unique_values[answer[k]] = true;
+											} else {
+												flag = 1;
+												message = 'All your answer choices must be different.';
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+
+					if( flag === 1){
+						e.preventDefault();
+						$('#error-message').html('<p>'+message+'<p>');
+						$('#error_message').modal('show');
+						$('#name').focus();
+					} else {
+						$.post( "/api/survey", { name: $('#name').val(), project_id : "#{data.cur_project._id}" }).done(function( survey ) {
+							for (var key in cur_questions) {
+								if (cur_questions.hasOwnProperty(key)) {
+									$.post("/api/question", { survey_id : survey.message._id, index : cur_questions[key].id, type : cur_questions[key].type, question : cur_questions[key].question, answer : cur_questions[key].answer }).done(function( question ) {
+										window.location.replace("/survey");
+									});
+								}
+							}
+						});
+					}
+				});
+
+				function countObj(foo){
+					var count = 0;
+					for (var k in foo) {
+					    if (foo.hasOwnProperty(k)) {
+					       ++count;
+					    }
+					}
+					return count;
+				}
+			});	

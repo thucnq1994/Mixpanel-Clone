@@ -1,0 +1,19 @@
+doctype
+html( lang="en" )
+	include ./template/head.jade
+	body
+		.container
+			include ./template/menu.jade
+			div.row
+				div(class="col-md-offset-5 col-md-3")
+					div(class="form-login")
+					h4|Create Project
+					form(action="" method="post")
+						input(type="text" id="name" name="name" class="form-control input-sm chat-input" placeholder="Project's name")
+						br
+						div(class="wrapper")
+						span(class="group-btn")
+							button(type="submit" class="btn btn-primary btn-md btn-block") Create 
+								i(class="fa fa-sign-in")
+ 
+		include ./template/foot.jade
